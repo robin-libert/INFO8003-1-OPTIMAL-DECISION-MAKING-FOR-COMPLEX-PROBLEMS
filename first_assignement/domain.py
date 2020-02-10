@@ -18,7 +18,7 @@ class Domain:
         #0 for deterministic setting of the domain
         #1 for stochastic setting of the domain
         self.setting = 0
-        self.state_space = [[(x,y) for x in range(self.n)] for y in range(self.m)]
+        self.state_space = [[(x,y) for y in range(self.n)] for x in range(self.m)]
         self.action_space = [(1,0),(-1,0),(0,1),(0,-1)]
         self.discount_factor = 0.99
 
@@ -34,5 +34,5 @@ class Domain:
                 return (0,0)
 
     def reward_signal(self, state, newState):
-    	reward = self.g[newState[1]][newState[0]]
+    	reward = self.g[newState[0]][newState[1]]
     	return reward
