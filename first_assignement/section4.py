@@ -4,30 +4,86 @@ import random
 domain = Domain()
 
 #section 4 -----------------------------------------------------------------------
-def probabilities(state, N=999):
-    p = []
-    n = N
-    for i in range(len(state_space)):
-        p.append([])
-        for j in range(len(state_space[i])):
-            p[i].append(0)
-    while N >= 0:
-        for i in state_space:
-            for j in i:
-                if dynamics(state, action_space[random.randint(0,3)]) == j:
-                    p[j[1]][j[0]] += 1
-        N -= 1
-    for i in range(len(p)):
-        for j in range(len(p[i])):
-            p[i][j] = p[i][j]/n
-    return p
+def r(T):
+    """
+    Compute r(x,u) for each state, using a uniform random policy
+    T: integer
+        the greater T is, the more acurate is the prediction
+    return a dictionary containing each r(x,u)
+    """
+    d = {}
+    #init the dictionary
+    for i in domain.state_space:
+        for state in i:
+            for action in domain.action_space:
+                d[(state, action)] = 0
+    counter = 0
+    while counter < T:
+        for i in domain.state_space:
+            for state in i:
+                action = domain.action_space[random.randint(0,3)]
+                newState = domain.move(state, action)
+                if d[(state, action)] != 0:
+                    d[(state, action)] += domain.reward_signal(state, newState)
+                    d[(state, action)] = d[(state, action)] / 2
+                else:
+                    d[(state, action)] = domain.reward_signal(state, newState)
+        counter += 1
+    return d
 
-def all_probabilities(N):
-    p = []
-    for i in state_space:
-        for j in i:
-            p.append(probabilities(j,N))
-    return np.array(p)
-print(all_probabilities(N=7000))
+def p(T):
+    """
+    Compute P(x'|x,u) for each state and each action, using a uniform random policy
+    T: integer
+        the greater T is, the more acurate is the prediction
+    return a dictionary containing each P(x'|x,u)
+    """
+    d = {}
+    #init the dictionary
+    for i in domain.state_space:
+        for state in i:
+            for j in domain.state_space:
+                for newState in j:
+                    for action in domain.action_space:
+                        d[(state, action, newState)] = 0
+    counter = 0
+    while counter < T:
+        for i in domain.state_space:
+            for state in i:
+                for j in domain.state_space:
+                    for newState in j:
+                        action = domain.action_space[random.randint(0,3)]
+                        newState2 = domain.move(state, action)
+                        if d[(state, action, newState)] != 0:
+                            if newState == newState2:
+                                d[(state, action, newState)] += 1
+                                d[(state, action, newState)] = d[(state, action, newState)] / 2
+                            else:
+                                d[(state, action, newState)] = d[(state, action, newState)] / 2
+                        else:
+                            if newState == newState2:
+                                d[(state, action, newState)] += 1
+        counter += 1
+    return d
+
+
+def Q(state, action, N, r, p):
+    if N == 0:
+        return 0
+    else:
+        mysum = 0
+        recurse = 0
+        for i in domain.state_space:
+            for newState in i:
+                recurse = max(Q(newState, domain.action_space[0], N-1, r, p),Q(newState, domain.action_space[1], N-1, r, p),Q(newState, domain.action_space[2], N-1, r, p),Q(newState, domain.action_space[3], N-1, r, p))
+                mysum += p[(state,action,newState)] * recurse
+        return r[(state,action)] + domain.discount_factor * mysum
+
+
+T = 100
+rewards = r(T)
+probabilities = p(T)
+print(Q((3,0), (0,1), 4, rewards, probabilities))
+
 
 
