@@ -33,6 +33,6 @@ class Domain:
             else:
                 return (0,0)
 
-    def reward_signal(self, state, newState):
+    def reward_signal(self, newState):
     	reward = self.g[newState[0]][newState[1]]
     	return reward
