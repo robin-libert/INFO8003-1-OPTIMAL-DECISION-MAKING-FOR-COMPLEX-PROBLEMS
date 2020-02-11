@@ -56,16 +56,11 @@ def p(T):
                     for newState in j:
                         action = domain.action_space[random.randint(0,3)]
                         newState2 = domain.move(state, action)
-                        if d[(state, action, newState)] != 0:
-                            if newState == newState2:
-                                d[(state, action, newState)] += 1
-                                n[(state, action, newState)] += 1
-                            else:
-                                n[(state, action, newState)] += 1
+                        if newState == newState2:
+                            d[(state, action, newState)] += 1
+                            n[(state, action, newState)] += 1
                         else:
-                            if newState == newState2:
-                                d[(state, action, newState)] += 1
-                                n[(state, action, newState)] += 1
+                            n[(state, action, newState)] += 1
         counter += 1
     for i in domain.state_space:
         for state in i:
