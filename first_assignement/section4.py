@@ -12,23 +12,28 @@ def r(T):
     return a dictionary containing each r(x,u)
     """
     d = {}
+    n= {}
     #init the dictionary
     for i in domain.state_space:
         for state in i:
             for action in domain.action_space:
                 d[(state, action)] = 0
+                n[(state, action)] = 0
     counter = 0
     while counter < T:
         for i in domain.state_space:
             for state in i:
                 action = domain.action_space[random.randint(0,3)]
                 newState = domain.move(state, action)
-                if d[(state, action)] != 0:
-                    d[(state, action)] += domain.reward_signal(state, newState)
-                    d[(state, action)] = d[(state, action)] / 2
-                else:
-                    d[(state, action)] = domain.reward_signal(state, newState)
+                d[(state, action)] += domain.reward_signal(state, newState)
+                n[(state, action)] += 1
         counter += 1
+    for i in domain.state_space:
+        for state in i:
+            for action in domain.action_space:
+                if n[(state, action)] != 0:
+                    d[(state, action)] = d[(state, action)] / n[(state, action)]
+
     return d
 
 def p(T):
@@ -71,7 +76,15 @@ def p(T):
                             d[(state, action, newState)] = d[(state, action, newState)] /n[(state, action, newState)]
     return d
 
+def memoize(f):
+    memo = {}
+    def helper(a,b,c,d,e):
+        if (a,b,c) not in memo:
+            memo[(a,b,c)] = f(a,b,c,d,e)
+        return memo[(a,b,c)]
+    return helper
 
+@memoize
 def Q(state, action, N, r, p):
     if N == 0:
         return 0
@@ -85,12 +98,13 @@ def Q(state, action, N, r, p):
         return r[(state,action)] + domain.discount_factor * mysum
 
 
+
 T = 100
-domain.setting = 1
+domain.setting = 0
 rewards = r(T)
 probabilities = p(T)
 for action in domain.action_space:
-    print(Q((3,0), action, 2, rewards, probabilities))
+    print(Q((3,0), action,2, rewards, probabilities))
 
 
 
