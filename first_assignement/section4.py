@@ -4,9 +4,10 @@ random.seed(42)#for reproductibility
 
 domain = Domain()
 
-#section 4 -----------------------------------------------------------------------
-
 def my_routine(T):
+    """
+    Compute r(x,u) and p(x'|x,u) and a trajectory of size T
+    """
     p = {}
     r = {}
     #counters to compute the mean
@@ -33,7 +34,7 @@ def my_routine(T):
         ht.append(reward)
         ht.append(newState)
         newState2 = (min(max(state[0]+action[0],0),domain.n-1), min(max(state[1]+action[1],0),domain.m-1))#new state if there is no disturbances
-        r[(state, action)] += domain.reward_signal(newState)
+        r[(state, action)] += reward
         nr[(state, action)] += 1.
         if newState == newState2:
             p[(state, action, newState2)] += 1.
@@ -59,6 +60,9 @@ def my_routine(T):
 
 
 def memoize(f):
+    """
+    To optimize the Q function
+    """
     memo = {}
     def helper(a,b,c,d,e):
         if (a,b,c) not in memo:
@@ -68,6 +72,19 @@ def memoize(f):
 
 @memoize
 def Q(state, action, N, r, p):
+    """
+    Return the value of the state_action value function.
+    state:
+        a tuple (n,m) where 0<=n,m<=4
+    action:
+        a tuple (a,b) where -1<=a,b<= 1 which belongs to domain.action_space
+    N:
+        the nnumber of steps
+    r:
+        dictionary containing r(x,u) previously computed for each state, action
+    p:
+        dictionary containing p(x'|x,u) previously computed for each state, action, new state
+    """
     if N == 0:
         return 0
     else:
@@ -80,6 +97,9 @@ def Q(state, action, N, r, p):
         return r[(state,action)] + domain.discount_factor * mysum
 
 def compute_JN_and_optimal_policy(N, rewards, probabilities):
+    """
+    Compute an optimal policy and the value function
+    """
     optimal_J_mu_N = {}
     optimal_policy = {}
     for i in domain.state_space:
@@ -96,6 +116,9 @@ def compute_JN_and_optimal_policy(N, rewards, probabilities):
     return (optimal_J_mu_N, optimal_policy)
 
 def tune_N(gamma=0.99, Br=19, erreur = 0.5):
+    """
+    return the best value of N
+    """
     N = 1
     e = ((2*(gamma**N))/(1-gamma)**2)*Br
     while e > erreur:
@@ -103,30 +126,15 @@ def tune_N(gamma=0.99, Br=19, erreur = 0.5):
         e = ((2*(gamma**N))/(1-gamma)**2)*Br
     return N
 
-def tune_T():
-    current_setting = domain.setting
-    T = 100
-    N = tune_N()
-    domain.setting = 0
-    probabilities, rewards, trajectory = my_routine(T)
-    optimal_J_mu_N, optimal_policy = compute_JN_and_optimal_policy(N, rewards, probabilities)
-    probabilities1, rewards1, trajectory1 = my_routine(T+1)
-    optimal_J_mu_N1, optimal_policy1 = compute_JN_and_optimal_policy(N, rewards1, probabilities1)
-    print(optimal_policy == optimal_policy1)
-
 
 domain.setting = 0
-tune_T()
-"""T = 10000
+T = 1000000
 N = tune_N()#compute N to have an error <= 0.5
 probabilities, rewards, trajectory = my_routine(T)
 
 optimal_J_mu_N, optimal_policy = compute_JN_and_optimal_policy(N, rewards, probabilities)
 for i in domain.state_space:
     for state in i:
-        best_action = domain.action_space[0]
-        maxi = Q(state, domain.action_space[0],N, rewards, probabilities)
         print('current state = {} | optimal_JN = {}'.format(state, optimal_J_mu_N[state]))
-print(optimal_policy)"""
 
 

@@ -22,7 +22,7 @@ def expected_return(state, policy = right_policy, N=999, g=domain.g, gamma=domai
     else:
         action = domain.action_space[policy]
         newState = domain.move(state, action)
-        return domain.reward_signal(state, newState) + gamma * expected_return(newState, policy=policy, N=N-1)
+        return domain.reward_signal(newState) + gamma * expected_return(newState, policy=policy, N=N-1)
 
 def display_expected_return(N = 999, policy = right_policy, g=domain.g):
     for i in domain.state_space:

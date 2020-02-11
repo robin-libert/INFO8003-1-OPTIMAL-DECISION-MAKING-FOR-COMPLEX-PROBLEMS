@@ -15,7 +15,7 @@ def display_right_policy(state, N=100, g=domain.g):
     while t <= N:
         action = domain.action_space[2]
         newState = domain.move(state, action)
-        reward = domain.reward_signal(state, newState)
+        reward = domain.reward_signal(newState)
         print('(x_{0} = {1}, u_{0} = {2}, r_{0} = {3}, x_{4} = {5})'.format(t,state, action, reward, t+1, newState))
         t+=1
         state = newState
