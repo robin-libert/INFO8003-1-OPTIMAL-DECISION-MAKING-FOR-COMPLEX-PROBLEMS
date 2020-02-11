@@ -39,6 +39,7 @@ def p(T):
     return a dictionary containing each P(x'|x,u)
     """
     d = {}
+    n= {}
     #init the dictionary
     for i in domain.state_space:
         for state in i:
@@ -46,6 +47,7 @@ def p(T):
                 for newState in j:
                     for action in domain.action_space:
                         d[(state, action, newState)] = 0
+                        n[(state, action, newState)] = 0
     counter = 0
     while counter < T:
         for i in domain.state_space:
@@ -57,13 +59,20 @@ def p(T):
                         if d[(state, action, newState)] != 0:
                             if newState == newState2:
                                 d[(state, action, newState)] += 1
-                                d[(state, action, newState)] = d[(state, action, newState)] / 2
+                                n[(state, action, newState)] += 1
                             else:
-                                d[(state, action, newState)] = d[(state, action, newState)] / 2
+                                n[(state, action, newState)] += 1
                         else:
                             if newState == newState2:
                                 d[(state, action, newState)] += 1
         counter += 1
+    for i in domain.state_space:
+        for state in i:
+            for j in domain.state_space:
+                for newState in j:
+                    for action in domain.action_space:
+                        if n[(state, action, newState)] != 0:
+                            d[(state, action, newState)] = d[(state, action, newState)] /n[(state, action, newState)]
     return d
 
 
@@ -83,7 +92,8 @@ def Q(state, action, N, r, p):
 T = 100
 rewards = r(T)
 probabilities = p(T)
-print(Q((3,0), (0,1), 4, rewards, probabilities))
+for action in domain.action_space:
+    print(Q((3,0), action, 2, rewards, probabilities))
 
 
 
