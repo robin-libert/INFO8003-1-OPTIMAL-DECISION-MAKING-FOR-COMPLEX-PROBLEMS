@@ -65,6 +65,7 @@ def p(T):
                         else:
                             if newState == newState2:
                                 d[(state, action, newState)] += 1
+                                n[(state, action, newState)] += 1
         counter += 1
     for i in domain.state_space:
         for state in i:
@@ -90,6 +91,7 @@ def Q(state, action, N, r, p):
 
 
 T = 100
+domain.setting = 1
 rewards = r(T)
 probabilities = p(T)
 for action in domain.action_space:
