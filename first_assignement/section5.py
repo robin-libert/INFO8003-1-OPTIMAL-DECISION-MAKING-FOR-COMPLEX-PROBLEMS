@@ -5,6 +5,9 @@ random.seed(42)
 domain = Domain()
 
 #section 5 -----------------------------------------------------------------------
+Q = {}
+p = {}
+r = {}
 
 def create_trajectory(size):
     ht = []
@@ -58,7 +61,6 @@ def estimate_p(state, action, newState, trajectory):
         return 0
 
 def estimate_all_r(trajectory):
-    r = {}
     for i in domain.state_space:
         for state in i:
             for action in domain.action_space:
@@ -66,7 +68,6 @@ def estimate_all_r(trajectory):
     return r
 
 def estimate_all_p(trajectory):
-    p = {}
     for i in domain.state_space:
         for state in i:
             for action in domain.action_space:
@@ -80,14 +81,14 @@ def memoize(f):
     To optimize the Q function
     """
     memo = {}
-    def helper(a,b,c,d,e):
+    def helper(a,b,c):
         if (a,b,c) not in memo:
-            memo[(a,b,c)] = f(a,b,c,d,e)
+            memo[(a,b,c)] = f(a,b,c)
         return memo[(a,b,c)]
     return helper
 
 @memoize
-def estimate_Q(state, action, N, r, p):
+def estimate_Q(state, action, N):
     if N == 0:
         return 0
     else:
@@ -95,13 +96,28 @@ def estimate_Q(state, action, N, r, p):
         recurse = 0
         for i in domain.state_space:
             for newState in i:
-                recurse = max(estimate_Q(newState, domain.action_space[0], N-1, r, p),estimate_Q(newState, domain.action_space[1], N-1, r, p),estimate_Q(newState, domain.action_space[2], N-1, r, p),estimate_Q(newState, domain.action_space[3], N-1, r, p))
+                recurse = max(estimate_Q(newState, domain.action_space[0], N-1),estimate_Q(newState, domain.action_space[1], N-1),estimate_Q(newState, domain.action_space[2], N-1),estimate_Q(newState, domain.action_space[3], N-1))
                 mysum += p[(state,action,newState)] * recurse
         return r[(state,action)] + domain.discount_factor * mysum
 
-domain.setting = 0
-trajectory = create_trajectory(5)
-print(trajectory)
-"""r = estimate_all_r(trajectory)
-p = estimate_all_p(trajectory)
-print(estimate_Q((0,0), (0,1),1000, r, p))"""
+domain.setting = int(input("Press 0 for deterministic setting or 1 for stochastic setting"))
+length = int(input("Choose the length of the trajectory you want to generate"))
+domain.update()
+trajectory = create_trajectory(length)
+estimate_all_r(trajectory)
+estimate_all_p(trajectory)
+
+for i in domain.state_space:
+    for state in i:
+        for action in domain.action_space:
+            Q[(state, action)] = estimate_Q(state, action,1000)
+
+for i in domain.state_space:
+    for state in i:
+        maxi = Q[(state, domain.action_space[0])]
+        u = domain.action_space[0]
+        for action in domain.action_space:
+            if Q[(state, action)] > maxi:
+                maxi = Q[(state, action)]
+                u = action
+        print("{} Estimation J* = {} --- Real J* = {}".format(state, maxi, domain.optimal_J[state]))
