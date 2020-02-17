@@ -1,5 +1,6 @@
 from domain import Domain
 import random
+random.seed(42)
 
 domain = Domain()
 
@@ -14,7 +15,7 @@ def create_trajectory(size):
     for i in range(size):
         action = domain.action_space[random.randint(0,3)]
         arrivalState = domain.move(initialState, action)
-        reward = domain.reward_signal(initialState, arrivalState)
+        reward = domain.reward_signal(arrivalState)
         ht.append(action)
         ht.append(reward)
         ht.append(arrivalState)
@@ -74,8 +75,19 @@ def estimate_all_p(trajectory):
                         p[(state, action, newState)] = estimate_p(state, action, newState, trajectory)
     return p
 
+def memoize(f):
+    """
+    To optimize the Q function
+    """
+    memo = {}
+    def helper(a,b,c,d,e):
+        if (a,b,c) not in memo:
+            memo[(a,b,c)] = f(a,b,c,d,e)
+        return memo[(a,b,c)]
+    return helper
 
-def estimate_Q(state, action, trajectory, N, r, p):
+@memoize
+def estimate_Q(state, action, N, r, p):
     if N == 0:
         return 0
     else:
@@ -83,12 +95,13 @@ def estimate_Q(state, action, trajectory, N, r, p):
         recurse = 0
         for i in domain.state_space:
             for newState in i:
-                recurse = max(estimate_Q(newState, domain.action_space[0], trajectory, N-1, r, p),estimate_Q(newState, domain.action_space[1], trajectory, N-1, r, p),estimate_Q(newState, domain.action_space[2], trajectory, N-1, r, p),estimate_Q(newState, domain.action_space[3], trajectory, N-1, r, p))
+                recurse = max(estimate_Q(newState, domain.action_space[0], N-1, r, p),estimate_Q(newState, domain.action_space[1], N-1, r, p),estimate_Q(newState, domain.action_space[2], N-1, r, p),estimate_Q(newState, domain.action_space[3], N-1, r, p))
                 mysum += p[(state,action,newState)] * recurse
         return r[(state,action)] + domain.discount_factor * mysum
 
-domain.setting = 1
-trajectory = create_trajectory(100)
-r = estimate_all_r(trajectory)
+domain.setting = 0
+trajectory = create_trajectory(5)
+print(trajectory)
+"""r = estimate_all_r(trajectory)
 p = estimate_all_p(trajectory)
-print(estimate_Q((0,0), (0,1), trajectory,4, r, p))
+print(estimate_Q((0,0), (0,1),1000, r, p))"""

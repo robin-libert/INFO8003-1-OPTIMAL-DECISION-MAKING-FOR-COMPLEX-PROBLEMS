@@ -31,11 +31,12 @@ def display_expected_return(N = 999, policy = right_policy, g=domain.g):
 
 
 n = tune_N()
+print(n)
 print("Deterministic domain")
 print("--------------------")
 domain.setting = 0
-display_expected_return(N=2000, policy=right_policy)
+display_expected_return(N=n, policy=right_policy)
 print("Stochastic domain")
 print("--------------------")
 domain.setting = 1
-display_expected_return(N=2000, policy=right_policy)
+display_expected_return(N=n, policy=right_policy)

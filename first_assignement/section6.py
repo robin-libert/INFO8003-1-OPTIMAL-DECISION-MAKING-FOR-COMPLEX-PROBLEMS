@@ -1,6 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Feb 15 09:59:22 2020
+
+@author: robin
+"""
+
 from domain import Domain
 import random
-random.seed(42)#for reproductibility
+random.seed(42)
 
 domain = Domain()
 
@@ -104,9 +111,9 @@ def compute_JN_and_optimal_policy(N, rewards, probabilities):
     optimal_policy = {}
     for i in domain.state_space:
         for state in i:
-            best_action = domain.action_space[0]
-            maxi = Q(state, domain.action_space[0],N, rewards, probabilities)
-            for action in domain.action_space[1:4]:
+            best_action = None
+            maxi = 0
+            for action in domain.action_space:
                 current = Q(state, action,N, rewards, probabilities)
                 if current > maxi:
                     maxi = current
@@ -126,15 +133,73 @@ def tune_N(gamma=0.99, Br=19, erreur = 0.5):
         e = ((2*(gamma**N))/(1-gamma)**2)*Br
     return N
 
-if __name__ == "__main__":
-    domain.setting = 0
-    T = 10000
-    N = tune_N()#compute N to have an error <= 0.5
-    probabilities, rewards, trajectory = my_routine(T)
+def create_trajectory(size):
+    ht = []
+    x = random.randint(0,4)
+    y = random.randint(0,4)
+    initialState = domain.state_space[y][x]
+    ht.append(initialState)
+    for i in range(size):
+        action = domain.action_space[random.randint(0,3)]
+        arrivalState = domain.move(initialState, action)
+        reward = domain.reward_signal(arrivalState)
+        ht.append(action)
+        ht.append(reward)
+        ht.append(arrivalState)
+        initialState = arrivalState
+    return ht
 
-    optimal_J_mu_N, optimal_policy = compute_JN_and_optimal_policy(N, rewards, probabilities)
+def init_Q():
+    Q = {}
     for i in domain.state_space:
         for state in i:
-            print('current state = {} | optimal_JN = {}'.format(state, optimal_J_mu_N[state]))
+            for action in domain.action_space:
+                Q[(state, action)] = 0
+    return Q
 
+def compute_Q(state, action, trajectory, Q_dict, k=0, alpha=0.05):
+    t = ((len(trajectory)-1)/3)
+    while k < t:
+        k_index = k
+        xk = trajectory[k_index * 3]
+        uk = trajectory[k_index * 3 + 1]
+        rk = trajectory[k_index * 3 + 2]
+        xkplus1 = trajectory[k_index * 3 + 3]
+        Q_dict[(xk,uk)] = (1-alpha) * Q_dict[(xk,uk)]
+        maxi = 0
+        for u in domain.action_space:
+            temp = Q_dict[(xkplus1, action)]
+            if temp > maxi:
+                maxi = temp
+        Q_dict[(xk,uk)] += alpha * (rk + domain.discount_factor * maxi)
+        k += 1
+    return Q_dict[(state, action)]
 
+trajectory = create_trajectory(10000000)
+Q_dict = init_Q()
+compute_Q((0,0), (0,1), trajectory, Q_dict)
+
+optimal_policy = {}
+J = {}
+
+for i in domain.state_space:
+    for state in i:
+        maxi = 0
+        u = None
+        for action in domain.action_space:
+            if Q_dict[(state, action)] > maxi:
+                maxi = Q_dict[(state, action)]
+                u = action
+        optimal_policy[state] = u
+        J[state] = maxi
+
+T = 10000
+N = tune_N()#compute N to have an error <= 0.5
+probabilities, rewards, trajectory2 = my_routine(T)
+
+optimal_J_mu_N, optimal_policy2 = compute_JN_and_optimal_policy(N, rewards, probabilities)
+for i in domain.state_space:
+    for state in i:
+        print('current state = {} | optimal_JN = {} | estimate_JN = {}'.format(state, optimal_J_mu_N[state], J[state]))
+print(optimal_policy)
+print(optimal_policy2)
