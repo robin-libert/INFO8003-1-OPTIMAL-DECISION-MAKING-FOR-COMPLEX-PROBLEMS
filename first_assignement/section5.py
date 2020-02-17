@@ -107,11 +107,13 @@ trajectory = create_trajectory(length)
 estimate_all_r(trajectory)
 estimate_all_p(trajectory)
 
+#Compute Q
 for i in domain.state_space:
     for state in i:
         for action in domain.action_space:
             Q[(state, action)] = estimate_Q(state, action,1000)
 
+#display JN according to an optimal policy
 for i in domain.state_space:
     for state in i:
         maxi = Q[(state, domain.action_space[0])]
