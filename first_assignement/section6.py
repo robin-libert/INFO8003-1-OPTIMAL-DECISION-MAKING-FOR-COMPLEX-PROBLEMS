@@ -64,9 +64,10 @@ def compute_Q(trajectory, Q_dict , alpha=0.05):
 setting = int(input("Press 0 for deterministic setting or 1 for stochastic setting"))
 n = int(input("Choose how many trajectories you want to generate"))
 length = int(input("Choose the length of the trajectories you want to generate"))
-print("wait until completion")
+print("wait some seconds until completion")
 domain = Domain()
 domain.setting = setting
+domain.update()
 Q = init_Q()
 for i in range(n):
     trajectory = create_trajectory(length)
