@@ -10,9 +10,13 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesRegressor
 import matplotlib.pyplot as plt
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import SGD
+# from keras.models import Sequential
+# from keras.layers import Dense
+# from keras.layers import Dropout
+#from keras.optimizers import SGD
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense
+from tensorflow.python.keras.layers import Dropout
 import pickle
 
 
@@ -138,14 +142,12 @@ class Agent:
                 X = np.array(X)
                 y = np.array(y)
                 model = Sequential()
-                model.add(Dense(9, input_dim=3, activation='relu'))
-                model.add(Dense(9, activation='relu'))
-                model.add(Dense(9, activation='relu'))
-                model.add(Dense(9, activation='relu'))
+                model.add(Dense(8, input_dim=3, activation='relu'))
+                model.add(Dense(4, activation='relu'))
                 model.add(Dense(1, activation='linear'))
                 model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse'])
                 # model.fit(X, y, epochs=10, batch_size=10, verbose=0)
-                model.fit(X, y, epochs=10, batch_size=10, verbose=0)
+                model.fit(X, y, epochs=100, batch_size=128, verbose=2)
                 self.qn_approximation.append(model)
             if algo != "Neural Network":
                 self.qn_approximation.append(model.fit(np.array(X), np.array(y)))
