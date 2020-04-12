@@ -37,9 +37,10 @@ if __name__ == "__main__":
     print("Number of positives rewards is {}".format(positiveRewards))
 
     stop = stop_condition_1(domain)
-    # agent.display_q_function(four_tuples_set, 50, algo="Linear Regression")
+    #agent.display_q_function(four_tuples_set, 5, algo="Linear Regression")
     agent.display_q_function(four_tuples_set, 20, algo="Neural Network")
     # agent.display_q_function(four_tuples_set, stop, algo="Extremely Randomized Trees")
-    pickle.dump(agent.qn_approximation[-1], open("20_NN_1", 'wb'))
+    # pickle.dump(agent.qn_approximation[-1], open("TEST2", 'wb'))
+    agent.qn_approximation[-1].save("NN20-1")
     # model = pickle.load(open("50_linear_regression", 'rb'))
     #agent.run_optimal_policy("50_LIN_1")
