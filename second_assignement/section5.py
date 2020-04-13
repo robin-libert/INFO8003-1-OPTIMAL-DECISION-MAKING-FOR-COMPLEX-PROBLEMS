@@ -19,28 +19,27 @@ if __name__ == "__main__":
     domain = Domain()
     agent = Agent(domain)
     policy = agent.RANDOM_POLICY
-    print("Generating the set of four tuples ...")
-    four_tuples_set = agent.generate_four_tuples(policy)
-    #four_tuples_set = agent.generate_four_tuples2(policy)
-    print("Generation of the set completed.")
-    print("Compute statistics over the set...")
-    positiveRewards = 0
-    negativeRewards = 0
-    for t in four_tuples_set:
-        if t[2] == 1:
-            positiveRewards += 1
-        elif t[2] == -1:
-            negativeRewards += 1
-    # print(four_tuples_set)
-    print("Length of the set is {}".format(len(four_tuples_set)))
-    print("Number of negatives rewards is {}".format(negativeRewards))
-    print("Number of positives rewards is {}".format(positiveRewards))
+    # print("Generating the set of four tuples ...")
+    # four_tuples_set = agent.generate_four_tuples(policy)
+    # #four_tuples_set = agent.generate_four_tuples2(policy)
+    # print("Generation of the set completed.")
+    # print("Compute statistics over the set...")
+    # positiveRewards = 0
+    # negativeRewards = 0
+    # for t in four_tuples_set:
+    #     if t[2] == 1:
+    #         positiveRewards += 1
+    #     elif t[2] == -1:
+    #         negativeRewards += 1
+    # print("Length of the set is {}".format(len(four_tuples_set)))
+    # print("Number of negatives rewards is {}".format(negativeRewards))
+    # print("Number of positives rewards is {}".format(positiveRewards))
 
-    stop = stop_condition_1(domain)
-    #agent.display_q_function(four_tuples_set, 5, algo="Linear Regression")
-    agent.display_q_function(four_tuples_set, 20, algo="Neural Network")
+    # stop = stop_condition_1(domain)
+    # agent.display_q_function(four_tuples_set, 50, algo="Linear Regression")
+    # agent.display_q_function(four_tuples_set, 20, algo="Neural Network")
     # agent.display_q_function(four_tuples_set, stop, algo="Extremely Randomized Trees")
     # pickle.dump(agent.qn_approximation[-1], open("TEST2", 'wb'))
-    agent.qn_approximation[-1].save("NN20-1")
+    # agent.qn_approximation[-1].save("NN20-1")
     # model = pickle.load(open("50_linear_regression", 'rb'))
-    #agent.run_optimal_policy("50_LIN_1")
+    agent.run_optimal_policy("NN20-2")

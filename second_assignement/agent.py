@@ -10,13 +10,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import ExtraTreesRegressor
 import matplotlib.pyplot as plt
-# from keras.models import Sequential
-# from keras.layers import Dense
-# from keras.layers import Dropout
-#from keras.optimizers import SGD
+import tensorflow.python.keras.models as kmodels
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Dense
-from tensorflow.python.keras.layers import Dropout
 import pickle
 
 
@@ -230,14 +226,15 @@ class Agent:
         return ht
 
     def run_optimal_policy(self, model_name):
-        model = pickle.load(open(model_name, 'rb'))
+        # model = pickle.load(open(model_name, 'rb'))
+        model = kmodels.load_model(model_name)
         self.domain.terminal = False
         self.p = random.uniform(-0.1, 0.1)
         self.s = 0
         ht = []
         ht.append((self.p, self.s))
-        print(model.predict(np.array([self.p, self.s, -4]).reshape(1, -1))[0])
-        """i = 1
+        #print(model.predict(np.array([self.p, self.s, -4]).reshape(1, -1))[0])
+        i = 1
         while not self.domain.terminal:
             if model.predict(np.array([self.p, self.s, -4]).reshape(1, -1))[0] <= model.predict(np.array([self.p, self.s, 4]).reshape(1, -1))[0]:
                 _policy = 4
@@ -247,9 +244,8 @@ class Agent:
             ht.append(self.domain.reward(self.p, self.s, _policy))
             self.move(_policy)
             ht.append((self.p, self.s))
-            print(i)
             i+=1
         print(ht)
-        print(len(ht))
-        return ht"""
+        print((len(ht)-1)/3)
+        return ht
 
